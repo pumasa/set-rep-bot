@@ -47,6 +47,8 @@ TOKEN = os.getenv('DISCORD_TOKEN')
 
 client = discord.Client()
 
+HELP_CHANNEL = ''
+
 dict = {}
 
 @client.event
@@ -54,6 +56,7 @@ async def on_ready():
     print(f'We have logged in as {client.user}')
     print('Attempting to load db')
     load_data()
+    HELP_CHANNEL = client.get_channel(952490461220708352)
 
 
 COURSE_DICT = {
@@ -63,15 +66,9 @@ COURSE_DICT = {
     '1630': 'ACIT 1630',
     '1310': 'MATH 1310',
     '1100': 'ORGB 1100',
-    '1116': 'COMM 1116',
-    'acit1515': 'ACIT 1515',
-    'acit1420': 'ACIT 1420',
-    'acit1620': 'ACIT 1620',
-    'acit1630': 'ACIT 1630',
-    'math1310': 'MATH 1310',
-    'orgb1100': 'ORGB 1100',
-    'comm1116': 'COMM 1116'
+    '1116': 'COMM 1116'
 }
+
 
 
 def parse_printall_output(ass_list) -> str:
