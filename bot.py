@@ -1,6 +1,5 @@
 # bot.py
 import os
-
 import random
 import discord
 from dotenv import load_dotenv
@@ -11,7 +10,6 @@ import json
 import pathlib
 import datetime
 import copy
-
 
 
 hws = data.assdata()
@@ -65,7 +63,14 @@ COURSE_DICT = {
     '1630': 'ACIT 1630',
     '1310': 'MATH 1310',
     '1100': 'ORGB 1100',
-    '1116': 'COMM 1116'
+    '1116': 'COMM 1116',
+    'acit1515': 'ACIT 1515',
+    'acit1420': 'ACIT 1420',
+    'acit1620': 'ACIT 1620',
+    'acit1630': 'ACIT 1630',
+    'math1310': 'MATH 1310',
+    'orgb1100': 'ORGB 1100',
+    'comm1116': 'COMM 1116'
 }
 
 
@@ -111,13 +116,16 @@ async def on_message(message):
 # Sasha's Section!!!111!!!!111!!!!11!!!!!!
 # syntax $hw add set course name duedate(yyyy-mm-dd) reminder(optional)
     if message.content.startswith('$hw'):
-        #ToDo: Check for arg length
+        #ToDo: Check for arg length -- COMPLETED
         response = message.content.split()
+        if len(response) < 2 or len(response) > 7:
+            await message.channel.send('Usage: $hw [Set] [4 digit course num] [assignment] [duedate: yyyy-mm-dd] [reminder: optional]')
+            return
         arggg = response[1]
         if arggg == 'add':
             hws.addass(response[2], response[3], response[4], response[5])
-            print(message.author)
             write_data()
+            await message.channel.send('Homework added successfully!')
         elif arggg == 'printall':
             output_all = parse_printall_output(hws.curass)
             await message.channel.send(output_all)
@@ -144,10 +152,6 @@ async def on_message(message):
         elif arggg == 'help':
             await message.channel.send('Usage: $hw [Set] [4 digit course num] [assignment] [duedate: yyyy-mm-dd] [reminder: optional]')
             
-
-
-
-
 # PLAYING ROCK PAPER SCISSORS WITH THE BOT UDAY'S SECTION   
     if msg.startswith('$rps'):
         message_list = msg.split()
@@ -174,8 +178,6 @@ def play_rps(user_choice, message):
         return f"I chose {RPS_DICT[bot_choice]}. You win!"
     else:
         return f"I chose {RPS_DICT[bot_choice]}. You lose!"
-    
 
-    
 
 client.run(TOKEN)
