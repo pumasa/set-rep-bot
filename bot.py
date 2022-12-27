@@ -1,180 +1,159 @@
-# bot.py
-import os
-import random
 import discord
-from dotenv import load_dotenv
 from discord.ext import commands
-import data
+import pymongo
+from datetime import datetime, timedelta
 import rps
-import json
-import pathlib
-import datetime
-import copy
+# import threading
 
 
-hws = data.assdata()
+# Connect to the MongoDB database
+client = pymongo.MongoClient("<MongoDB connection string>")
+db = client.test
 
-JLOC = pathlib.Path('ass.json')            
+# Set up the bot with the command prefix '$'
+intents = discord.Intents.all()
+bot = commands.Bot(command_prefix='$', intents=intents)
 
-def write_data():
-    counter = 0
-    assign = copy.deepcopy(hws.curass)
-    tw = {}
-    for ass in assign:
-        ass['duedate'] = str(ass.get('duedate'))
-        tw.update({counter: ass})
-        ass['currdate'] = str(ass.get('currdate'))
-        tw.update({counter: ass})
-        counter += 1
-    with open(JLOC, 'w') as outfile:
-        json.dump(tw, outfile, indent = 4)
+# Define the MongoDB collection that will store the homework assignments
+homework_collection = db.homework
 
-def load_data():
-    if pathlib.Path.is_file(JLOC):
-        with open(JLOC, 'r') as infile:
-            tr = json.load(infile)
-            for vals in list(tr.values()):
-                hws.curass.append(vals)
-        print('Loading db succesfull')
+# Get the current date
+current_date = datetime.today().date()
+
+
+########################################################################################
+# Define a command to display usage information
+@bot.command()
+async def hw_help(self):
+    await self.send("""Usage:
+                    $hw_add <Set> <Course ID> <Assignment Info> <Due Date (m/d/y)>
+                    $hw_del <Set> <Course ID> <Assignment> <Due Date>
+                    $hw_set <Set>
+                    $hw_course <Course ID>""")
+
+
+########################################################################################
+# Define a command to add homework assignments to the collection
+@bot.command()
+async def hw_add(self, set_id: str, course: str, assignment: str, due: str):
+    # Convert due date to a datetime object
+    due_date = datetime.strptime(due, '%m-%d-%Y')
+
+    # Insert the homework assignment into the collection
+    homework_collection.insert_one({
+        "set_id": set_id,
+        "course": course,
+        "assignment": assignment,
+        "due": due_date
+    })
+    await self.send("Homework assignment added successfully.")
+
+
+########################################################################################
+# Define a command to delete homework assignments from the collection
+@bot.command()
+async def hw_del(self, set_id: str, course: str, assignment: str, due: str):
+    # Convert due date to a datetime object
+    due_date = datetime.strptime(due, '%m-%d-%Y')
+
+    # Delete the homework assignment from the collection
+    homework_collection.delete_one({
+        "set_id": set_id,
+        "course": course,
+        "assignment": assignment,
+        "due": due_date
+    })
+    await self.send("Homework assignment deleted successfully.")
+
+
+########################################################################################
+# Define a command to get homework assignments by set
+@bot.command()
+async def hw_set(self, set_id: str):
+    # Find all homework assignments with the specified set ID
+    assignments = list(homework_collection.find({"set_id": set_id}))
+    if assignments:
+        # Format the assignments as a string and send them to the user
+        hw_string = "\n".join([f"Course {a['course']}\n{a['assignment']}\n(Due: {a['due'].strftime('%B %d, %Y')})\n" for a in assignments])
+        await self.send(f"Homework assignments for set {set_id}:\n{hw_string}")
     else:
-        print('No DB to load')
+        await self.send(f"No assignments found for set {set_id}.")
 
 
-bot = commands.Bot(command_prefix='$')
-
-load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
-
-client = discord.Client()
-
-HELP_CHANNEL = ''
-
-dict = {}
-
-@client.event
-async def on_ready():
-    print(f'We have logged in as {client.user}')
-    print('Attempting to load db')
-    load_data()
-    HELP_CHANNEL = client.get_channel(952490461220708352)
+########################################################################################
+# Define a command to get homework assignments by course
+@bot.command()
+async def hw_course(self, course: str):
+    # Find all homework assignments with the specified course
+    assignments = list(homework_collection.find({"course": course}))
+    if assignments:
+        # Format the assignments as a string and send them to the user
+        hw_string = "\n".join([f"{a['assignment']} (Due: {a['due']})" for a in assignments])
+        await self.send(f"Homework assignments for course {course}:\n{hw_string}")
+    else:
+        await self.send(f"No assignments found for course {course}.")
 
 
-COURSE_DICT = {
-    '1515': 'ACIT 1515',
-    '1420': 'ACIT 1420',
-    '1620': 'ACIT 1620',
-    '1630': 'ACIT 1630',
-    '1310': 'MATH 1310',
-    '1100': 'ORGB 1100',
-    '1116': 'COMM 1116'
-}
+########################################################################################
+# Define a command to get homework assignments due today
+@bot.command()
+async def duetoday(self):
+    # tomorrow = today + timedelta(days=1)
+    result = homework_collection.find({"due": {"$eq": datetime.strptime(str(current_date), '%Y-%m-%d')}})
+    if result:
+        homework = "\n".join([f"Set {assignment['set_id']} - Course: {assignment['course']} - {assignment['assignment']}" for assignment in result])
+        await self.send(f"Homework due today:\n{homework}")
+    else:
+        await self.send("No homework due today.")
 
 
+########################################################################################
+# Define a command to get homework assignments due tomorrow
+@bot.command()
+async def duetomorrow(self):
+    tomorrow = current_date + timedelta(days=1)
+    result = homework_collection.find({"due": {"$gte": datetime.strptime(str(tomorrow), '%Y-%m-%d')}})
+    if result:
+        homework = "\n".join([f"Set {assignment['set_id']} - Course: {assignment['course']} - {assignment['assignment']}" for assignment in result])
+        await self.send(f"Homework due tomorrow:\n{homework}")
+    else:
+        await self.send("No homework due tomorrow.")
 
-def parse_printall_output(ass_list) -> str:
-    assignments = ass_list
-    out_msg = ''
-    for ass in assignments:
-        out_msg += f'**For SET {ass["set"].upper()} - {COURSE_DICT[ass["course"]]}**\nAssignment: {ass["name"]}\nDue date: {ass["duedate"]}'
-        out_msg += '\n\n'
-    return out_msg
-        
-def parse_printallfor_set(set_name) -> str:
-    assignments = hws.curass
-    out_msg = ''
-    for ass in assignments:
-        if ass['set'] == set_name:
-            out_msg += f'**{COURSE_DICT[ass["course"]]}**\nAssignment: {ass["name"]}\nDue date: {ass["duedate"]}'
-            out_msg += '\n\n'
-        # else:
-        #     out_msg = 'Please check if that set exists!'
-    return out_msg
-
-def parse_printallfor_course(course_num) -> str:
-    assignments = hws.curass
-    out_msg = ''
-    for ass in assignments:
-        print(ass['course'] == str(course_num))
-        if ass['course'] == str(course_num):
-            out_msg += f'**For SET {ass["set"].upper()} - {COURSE_DICT[ass["course"]]}**\nAssignment: {ass["name"]}\nDue date: {ass["duedate"]}'
-            out_msg += '\n\n'
-        # else:
-        #     out_msg = f'No homework currently assigned for {COURSE_DICT[str(course_num)]}'
-    return out_msg
-        
-    
-@client.event
-async def on_message(message):
-    msg = message.content
-
-    if message.author == client.user:
-        return
-
-# Sasha's Section!!!111!!!!111!!!!11!!!!!!
-# syntax $hw add set course name duedate(yyyy-mm-dd) reminder(optional)
-    if message.content.startswith('$hw'):
-        #ToDo: Check for arg length -- COMPLETED
-        response = message.content.split()
-        if len(response) < 2 or len(response) > 7:
-            await message.channel.send('Usage: $hw [Set] [4 digit course num] [assignment] [duedate: yyyy-mm-dd] [reminder: optional]')
-            return
-        arggg = response[1]
-        if arggg == 'add':
-            hws.addass(response[2], response[3], response[4], response[5])
-            write_data()
-            await message.channel.send('Homework added successfully!')
-        elif arggg == 'printall':
-            output_all = parse_printall_output(hws.curass)
-            await message.channel.send(output_all)
-            #hws.curass
-        elif arggg == 'duetoday':
-            output_today = parse_printall_output(hws.duetoday())
-            await message.channel.send(output_today)
-        elif arggg == 'duetomorrow':
-            output_tom = parse_printall_output(hws.duetomorrow())
-            await message.channel.send(output_tom)
-        # elif arggg == 'listcourse': REPLACED WITH COURSE BELOW
-        #     await message.channel.send(hws.listcourse(response[2]))
-        # elif arggg == 'listset':   REPLACED WITH SET BELOW
-        #     await message.channel.send(hws.listset(response[2]))
-        elif arggg == 'del':
-            hws.delass(response[2], response[3], response[4], response[5])
-            write_data()
-        elif arggg == 'set': #for printing hw for each set
-            output_set = parse_printallfor_set(response[2])
-            await message.channel.send(output_set)
-        elif arggg == 'course':
-            output_course = parse_printallfor_course(response[2])
-            await message.channel.send(output_course)
-        elif arggg == 'help':
-            await message.channel.send('Usage: $hw [Set] [4 digit course num] [assignment] [duedate: yyyy-mm-dd] [reminder: optional]')
-            
-# PLAYING ROCK PAPER SCISSORS WITH THE BOT UDAY'S SECTION   
-    if msg.startswith('$rps'):
-        message_list = msg.split()
-        if(len(message_list) == 1):
-            await message.channel.send("Usage: $rps [Choice]")
-        else:
-            user_choice = message_list[1][0].upper()
-            winner = play_rps(user_choice, message)
-            await message.channel.send(winner)
+########################################################################################
+# def delete_expired_homework():
+#     result = db.homework.delete_many({"due": {"$lt": datetime.strptime(str(current_date), '%Y-%m-%d')}})
+#     print(f"{result.deleted_count} documents deleted.")
 
 
+# # Create a timer that runs the delete operation every hour
+# timer = threading.Timer(3600, delete_expired_homework)
+# timer.start()
+
+
+########################################################################################
+# PLAYING ROCK PAPER SCISSORS WITH THE BOT UDAY'S SECTION
 RPS_DICT = {
     'R': 'Rock',
     'P': 'Paper',
     'S': 'Scissor'
 }
 
-def play_rps(user_choice, message):
+
+@bot.command()
+async def rps_game(self, choice: str):
+    user_choice = choice[0].upper()
     bot_choice = rps.get_bot_choice()
     winner = rps.get_winner(user_choice, bot_choice)
     if winner == 'draw':
-        return f"I chose {RPS_DICT[bot_choice]}. It's a tie."
-    elif winner == 'p1':
-        return f"I chose {RPS_DICT[bot_choice]}. You win!"
+        await self.send(f"I chose {RPS_DICT[bot_choice]}. It's a draw!")
+    elif winner == 'user':
+        await self.send(f"I chose {RPS_DICT[bot_choice]}. You win!")
     else:
-        return f"I chose {RPS_DICT[bot_choice]}. You lose!"
+        await self.send(f"I chose {RPS_DICT[bot_choice]}. I win!")
 
+########################################################################################
 
-client.run(TOKEN)
+########################################################################################
+
+# Run the bot
+bot.run("<Discord token>")

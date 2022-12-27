@@ -12,8 +12,10 @@ WINNER_DICT = {
     'S': 'P'
 }
 
+
 def get_bot_choice() -> str:
     return random.choice(tuple(RPS_DICT.keys()))
+
 
 def get_winner(p1_choice: str, p2_choice: str) -> str:
     if p1_choice == p2_choice:
