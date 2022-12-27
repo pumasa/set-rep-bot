@@ -10,10 +10,11 @@ from dotenv import load_dotenv
 # Load the environment variables from the .env file
 load_dotenv()
 DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
-MONGO_TOKEN = os.getenv('MONGO_TOKEN')
+MONGO_USER = os.getenv('MONGO_USER')
+MONGO_PASS = os.getenv('MONGO_PASS')
 
 # Connect to the MongoDB database
-client = pymongo.MongoClient(f"mongodb+srv://{MONGO_TOKEN}@agile.d4nez.mongodb.net/?retryWrites=true&w=majority")
+client = pymongo.MongoClient("mongodb+srv://"+MONGO_USER+":"+MONGO_PASS+"@agile.d4nez.mongodb.net/?retryWrites=true&w=majority")
 db = client.test
 
 # Set up the bot with the command prefix '$'
