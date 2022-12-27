@@ -3,11 +3,11 @@ from discord.ext import commands
 import pymongo
 from datetime import datetime, timedelta
 import rps
-# import threading
+import threading
 
 
 # Connect to the MongoDB database
-client = pymongo.MongoClient("<MongoDB connection string>")
+client = pymongo.MongoClient("mongodb+srv://admin:hGyqn9yNpxfbTviA@agile.d4nez.mongodb.net/?retryWrites=true&w=majority")
 db = client.test
 
 # Set up the bot with the command prefix '$'
@@ -119,15 +119,16 @@ async def duetomorrow(self):
     else:
         await self.send("No homework due tomorrow.")
 
+
 ########################################################################################
-# def delete_expired_homework():
-#     result = db.homework.delete_many({"due": {"$lt": datetime.strptime(str(current_date), '%Y-%m-%d')}})
-#     print(f"{result.deleted_count} documents deleted.")
+def delete_expired_homework():
+    result = db.homework.delete_many({"due": {"$lt": datetime.strptime(str(current_date), '%Y-%m-%d')}})
+    print(f"{result.deleted_count} documents deleted.")
 
 
-# # Create a timer that runs the delete operation every hour
-# timer = threading.Timer(3600, delete_expired_homework)
-# timer.start()
+# Create a timer that runs the delete operation every hour
+timer = threading.Timer(3600, delete_expired_homework)
+timer.start()
 
 
 ########################################################################################
@@ -156,4 +157,4 @@ async def rps_game(self, choice: str):
 ########################################################################################
 
 # Run the bot
-bot.run("<Discord token>")
+bot.run("OTUyMjc3Nzk1NTk2Mjk2Mzgz.GBOesU.-xvzZIvSm7hwq84hdeEn67pbtO1SrigZZsIaao")
