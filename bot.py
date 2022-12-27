@@ -13,7 +13,7 @@ DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
 MONGO_TOKEN = os.getenv('MONGO_TOKEN')
 
 # Connect to the MongoDB database
-client = pymongo.MongoClient(MONGO_TOKEN)
+client = pymongo.MongoClient(f"mongodb+srv://{MONGO_TOKEN}@agile.d4nez.mongodb.net/?retryWrites=true&w=majority")
 db = client.test
 
 # Set up the bot with the command prefix '$'
