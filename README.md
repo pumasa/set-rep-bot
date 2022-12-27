@@ -55,6 +55,9 @@ The bot has a few commands that can be used to interact with it. The prefix for 
 ## Created By
 
 Sasha Fey
+
 Uday Chinna
+
 Jack Tam
+
 Mike Picus
