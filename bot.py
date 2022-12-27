@@ -1,13 +1,19 @@
+import os
 import discord
 from discord.ext import commands
 import pymongo
 from datetime import datetime, timedelta
 import rps
 import threading
+from dotenv import load_dotenv
 
+# Load the environment variables from the .env file
+load_dotenv()
+DISCORD_TOKEN = os.getenv('DISCORD_TOKEN')
+MONGO_TOKEN = os.getenv('MONGO_TOKEN')
 
 # Connect to the MongoDB database
-client = pymongo.MongoClient("mongodb+srv://admin:hGyqn9yNpxfbTviA@agile.d4nez.mongodb.net/?retryWrites=true&w=majority")
+client = pymongo.MongoClient(MONGO_TOKEN)
 db = client.test
 
 # Set up the bot with the command prefix '$'
@@ -157,4 +163,4 @@ async def rps_game(self, choice: str):
 ########################################################################################
 
 # Run the bot
-bot.run("OTUyMjc3Nzk1NTk2Mjk2Mzgz.GBOesU.-xvzZIvSm7hwq84hdeEn67pbtO1SrigZZsIaao")
+bot.run(DISCORD_TOKEN)
