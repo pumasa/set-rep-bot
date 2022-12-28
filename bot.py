@@ -122,10 +122,12 @@ async def duetoday(self, set_id: str):
 
     result = list(homework_collection.find({"due": {"$eq": datetime.strptime(str(current_date), '%Y-%m-%d')}}))
 
+    homework = ""
+
     if result:
         for assignment in result:
             if assignment['set_id'] == set_id:
-                homework = "\n".join(f"**ACIT {assignment['course']}:**\n{assignment['assignment']}@**{assignment['time']}**\n")
+                homework += f"**ACIT {assignment['course']}:**\n{assignment['assignment']}@**{assignment['time']}**\n"
                 await self.send(f"Homework due today:\n{homework}")
             else:
                 await self.send("No homework due today.")
