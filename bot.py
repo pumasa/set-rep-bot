@@ -120,7 +120,7 @@ async def hw_course(self, course: str):
 @bot.command()
 async def duetoday(self, set_id: str):
 
-    result = homework_collection.find({"due": {"$eq": datetime.strptime(str(current_date), '%Y-%m-%d')}})
+    result = list(homework_collection.find({"due": {"$eq": datetime.strptime(str(current_date), '%Y-%m-%d')}}))
 
     if result:
         for assignment in result:
