@@ -24,15 +24,15 @@ The bot has a few commands that can be used to interact with it. The prefix for 
 
 `$hw_help` - Displays a list of commands and their usage
 
-`$hw_add <SET> <COURSE_NUMBER> <ASSIGNMENT_INFO> <DUE_DATE(m/d/y)>` - Adds a new assignment to the list
+`$hw_add <SET> <COURSE_NUMBER> <ASSIGNMENT_INFO> <DUE_DATE(m/d/y)> <time>` - Adds a new assignment to the list
 
-`$hw_del <SET> <COURSE_NUMBER> <ASSIGNMENT_INFO> <DUE_DATE(m/d/y)>` - Deletes an assignment from the list
+`$hw_del <SET> <COURSE_NUMBER> <ASSIGNMENT_INFO> <DUE_DATE(m/d/y)> <time>` - Deletes an assignment from the list
 
 `$hw_set <SET>` - Displays the list of assignments by set
 
 `$hw_course <COURSE_NUMBER>` - Displays the list of assignments by course
 
-`$duetoday` - Displays the list of assignments that are due today
+`$duetoday <SET>` - Displays the list of assignments that are due today
 
 `$duetomorrow` - Displays the list of assignments that are due tomorrow
 
@@ -40,17 +40,17 @@ The bot has a few commands that can be used to interact with it. The prefix for 
 
 ## Future Plans
 
-- Update duetoday function to display assignments that due for a specific set
+- [ ] Update duetoday function to display assignments that due for a specific set
 
-- Error handling for invalid commands
+- [ ] Error handling for invalid commands
 
-- Add a function to display assignments that are due in the next 7 days
+- [ ] Add a function to display assignments that are due in the next 7 days
 
-- Update duetomorrow function to display assignments that are due for a specific set and due tomorrow and not just all the days after today
+- [ ] Update duetomorrow function to display assignments that are due for a specific set and due tomorrow and not just all the days after today
 
-- Make the bot to @ at the group of students who have assignments due
+- [x] Make the bot to @ at the group of students who have assignments due
 
-- Make the bot more interactive
+- [ ] Make the bot more interactive
 
 ## Created By
 

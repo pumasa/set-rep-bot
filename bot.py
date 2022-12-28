@@ -96,7 +96,7 @@ async def hw_set(self, set_id: str):
             hw_string += f"\n=======================================================\nDue: **{due}**\n"
             for a in due_assignments:
                 hw_string += f"**ACIT {a['course']}:**\n> •{a['assignment']} @**{a['time']}**\n\n"
-        await self.send(f"@here Homework assignments for set {set_id}:\n{hw_string}")
+        await self.send(f"@Set {set_id} Homework assignments for set {set_id}:\n{hw_string}")
     else:
         await self.send(f"No assignments found for set {set_id}.")
 
@@ -118,14 +118,17 @@ async def hw_course(self, course: str):
 ########################################################################################
 # Define a command to get homework assignments due today
 @bot.command()
-async def duetoday(self):
-    # tomorrow = today + timedelta(days=1)
+async def duetoday(self, set_id: str):
+
     result = homework_collection.find({"due": {"$eq": datetime.strptime(str(current_date), '%Y-%m-%d')}})
+
     if result:
-        homework = "\n".join([f"Set {assignment['set_id']} - Course: {assignment['course']} - {assignment['assignment']}" for assignment in result])
-        await self.send(f"Homework due today:\n{homework}")
-    else:
-        await self.send("No homework due today.")
+        for assignment in result:
+            if assignment['set_id'] == set_id:
+                homework = "\n".join(f"**ACIT {assignment['course']}:**\n{assignment['assignment']}@**{assignment['time']}**\n")
+                await self.send(f"Homework due today:\n{homework}")
+            else:
+                await self.send("No homework due today.")
 
 
 ########################################################################################
