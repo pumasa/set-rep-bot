@@ -33,16 +33,33 @@ current_date = datetime.today().date()
 @bot.command()
 async def hw_help(self):
     await self.send("""Usage:
-                    $hw_add <Set> <Course ID> <Assignment Info> <Due Date (m/d/y)>
-                    $hw_del <Set> <Course ID> <Assignment> <Due Date>
-                    $hw_set <Set>
-                    $hw_course <Course ID>""")
+                    $hw_add <SET> <COURSE_ID> <Assignment Info> <DUE_DATE (m/d/y)> <TIME>
+                    $hw_del <SET> <COURSE_ID> <Assignment> <DUE_DATE> <TIME>
+                    $hw_set <SET>
+                    $hw_course <COURSE_ID>""")
 
 
 ########################################################################################
 # Define a command to add homework assignments to the collection
 @bot.command()
 async def hw_add(self, set_id: str, course: str, assignment: str, due: str, time: str):
+    # Errpr handling
+    if len(set_id) != 1:
+        await self.send("Please enter a valid set letter.")
+        return 
+    if len(course) != 4:
+        await self.send("Please enter a valid course ID.")
+        return
+    if len(time) == 0:
+        await self.send("Please enter a time that the assignment is due.")
+        return
+    if len(assignment) == 0:
+        await self.send("Please enter an assignment.")
+        return
+    if len(due) == 0:
+        await self.send("Please enter a due date.")
+        return
+
     # Convert due date to a datetime object
     due_date = datetime.strptime(due, '%m-%d-%Y')
 

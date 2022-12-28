@@ -40,7 +40,7 @@ The bot has a few commands that can be used to interact with it. The prefix for 
 
 ## Future Plans
 
-- [ ] Update duetoday function to display assignments that due for a specific set
+- [x] Update duetoday function to display assignments that due for a specific set
 
 - [ ] Error handling for invalid commands
 
