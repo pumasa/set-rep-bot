@@ -42,7 +42,7 @@ async def hw_help(self):
 ########################################################################################
 # Define a command to add homework assignments to the collection
 @bot.command()
-async def hw_add(self, set_id: str, course: str, assignment: str, due: str):
+async def hw_add(self, set_id: str, course: str, assignment: str, due: str, time: str):
     # Convert due date to a datetime object
     due_date = datetime.strptime(due, '%m-%d-%Y')
 
@@ -51,7 +51,8 @@ async def hw_add(self, set_id: str, course: str, assignment: str, due: str):
         "set_id": set_id,
         "course": course,
         "assignment": assignment,
-        "due": due_date
+        "due": due_date,
+        "time": time
     })
     await self.send("Homework assignment added successfully.")
 
@@ -59,7 +60,7 @@ async def hw_add(self, set_id: str, course: str, assignment: str, due: str):
 ########################################################################################
 # Define a command to delete homework assignments from the collection
 @bot.command()
-async def hw_del(self, set_id: str, course: str, assignment: str, due: str):
+async def hw_del(self, set_id: str, course: str, assignment: str, due: str, time: str):
     # Convert due date to a datetime object
     due_date = datetime.strptime(due, '%m-%d-%Y')
 
@@ -68,7 +69,8 @@ async def hw_del(self, set_id: str, course: str, assignment: str, due: str):
         "set_id": set_id,
         "course": course,
         "assignment": assignment,
-        "due": due_date
+        "due": due_date,
+        "time": time
     })
     await self.send("Homework assignment deleted successfully.")
 
@@ -80,8 +82,29 @@ async def hw_set(self, set_id: str):
     # Find all homework assignments with the specified set ID
     assignments = list(homework_collection.find({"set_id": set_id}))
     if assignments:
+        # Create a pipeline to group the records by due date
+        pipeline = [
+            {
+                "$group": {
+                    "_id": "$due.$date",
+                    "records": {"$push": "$$ROOT"}
+                }
+            }
+        ]
+        # Use the aggregate() method to execute the pipeline
+        results = homework_collection.aggregate(pipeline)
+        # Print the records grouped by due date
+        for result in results:
+            due_date = result['_id']['$numberLong']
+            records = result['records']
+            await self.send(f"Testing portion: {due_date}")
+            print(f'Due date: {due_date}')
+            for record in records:
+                await self.send(f"{record}")
+                print(record)
+            print()
         # Format the assignments as a string and send them to the user
-        hw_string = "\n".join([f"Due: **{a['due'].strftime('%B %d, %Y')}**:\n**ACIT {a['course']}:**\n> •{a['assignment']} @\n\n" for a in assignments])
+        hw_string = "\n".join([f"Due: **{a['due'].strftime('%B %d, %Y')}**\n**ACIT {a['course']}:**\n> •{a['assignment']} @{a['time']}\n\n" for a in assignments])
         await self.send(f"@here Homework assignments for set {set_id}:\n{hw_string}")
     else:
         await self.send(f"No assignments found for set {set_id}.")
