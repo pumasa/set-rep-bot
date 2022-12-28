@@ -42,7 +42,7 @@ async def hw_help(self):
 ########################################################################################
 # Define a command to add homework assignments to the collection
 @bot.command()
-async def hw_add(self, set_id: str, course: str, assignment: str, due: str, time: str):
+def hw_add(self, set_id: str, course: str, assignment: str, due: str, time: str):
     # Errpr handling
     if len(set_id) != 1:
         self.send("Please enter a valid set letter.")
@@ -51,13 +51,13 @@ async def hw_add(self, set_id: str, course: str, assignment: str, due: str, time
         self.send("Please enter a valid course ID.")
         return
     if len(time) == 0:
-        await self.send("Please enter a time that the assignment is due.")
+        self.send("Please enter a time that the assignment is due.")
         return
     if len(assignment) == 0:
-        await self.send("Please enter an assignment.")
+        self.send("Please enter an assignment.")
         return
     if len(due) == 0:
-        await self.send("Please enter a due date.")
+        self.send("Please enter a due date.")
         return
 
     # Convert due date to a datetime object
