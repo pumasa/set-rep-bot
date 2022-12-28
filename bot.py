@@ -81,8 +81,8 @@ async def hw_set(self, set_id: str):
     assignments = list(homework_collection.find({"set_id": set_id}))
     if assignments:
         # Format the assignments as a string and send them to the user
-        hw_string = "\n".join([f"Course {a['course']}\n{a['assignment']}\n(Due: {a['due'].strftime('%B %d, %Y')})\n" for a in assignments])
-        await self.send(f"Homework assignments for set {set_id}:\n{hw_string}")
+        hw_string = "\n".join([f"Due: **{a['due'].strftime('%B %d, %Y')}**:\n**ACIT {a['course']}:**\n> •{a['assignment']} @\n\n" for a in assignments])
+        await self.send(f"@here Homework assignments for set {set_id}:\n{hw_string}")
     else:
         await self.send(f"No assignments found for set {set_id}.")
 
