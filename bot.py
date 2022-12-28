@@ -87,7 +87,7 @@ async def hw_set(self, set_id: str):
 
         # Iterate through the records and group them by due date
         for record in homework_collection.find():
-            due_date = record['due']
+            due_date = str(record['due'])
             records_by_due_date[due_date].append(record)
 
         # Print the records grouped by due date
