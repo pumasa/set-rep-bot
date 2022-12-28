@@ -82,22 +82,17 @@ async def hw_set(self, set_id: str):
     # Find all homework assignments with the specified set ID
     assignments = list(homework_collection.find({"set_id": set_id}))
     if assignments:
-        # Create a pipeline to group the records by due date
-        pipeline = [
-            {
-                "$group": {
-                    "_id": "$due.$date",
-                    "records": {"$push": "$$ROOT"}
-                }
-            }
-        ]
-        # Use the aggregate() method to execute the pipeline
-        results = homework_collection.aggregate(pipeline)
+        # Create a dictionary to store the records, using the due date as the key
+        records_by_due_date = defaultdict(list)
+
+        # Iterate through the records and group them by due date
+        for record in homework_collection.find():
+            due_date = record['due']
+            records_by_due_date[due_date].append(record)
+
         # Print the records grouped by due date
-        for result in results:
-            due_date = result['_id']['$numberLong']
-            records = result['records']
-            await self.send(f"Testing portion: {due_date}")
+        for due_date, records in records_by_due_date.items():
+            await self.send(f"Testing:{due_date}.")
             print(f'Due date: {due_date}')
             for record in records:
                 await self.send(f"{record}")
