@@ -82,22 +82,6 @@ async def hw_set(self, set_id: str):
     # Find all homework assignments with the specified set ID
     assignments = list(homework_collection.find({"set_id": set_id}))
     if assignments:
-        # Create a dictionary to store the records, using the due date as the key
-        records_by_due_date = []
-
-        # Iterate through the records and group them by due date
-        for record in homework_collection.find():
-            due_date = str(record['due'])
-            records_by_due_date[due_date].append(record)
-
-        # Print the records grouped by due date
-        for due_date, records in records_by_due_date.items():
-            await self.send(f"Testing:{due_date}.")
-            print(f'Due date: {due_date}')
-            for record in records:
-                await self.send(f"{record}")
-                print(record)
-            print()
         # Format the assignments as a string and send them to the user
         hw_string = "\n".join([f"Due: **{a['due'].strftime('%B %d, %Y')}**\n**ACIT {a['course']}:**\n> •{a['assignment']} @{a['time']}\n\n" for a in assignments])
         await self.send(f"@here Homework assignments for set {set_id}:\n{hw_string}")
