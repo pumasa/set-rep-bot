@@ -83,7 +83,7 @@ async def hw_set(self, set_id: str):
     assignments = list(homework_collection.find({"set_id": set_id}))
     if assignments:
         # Create a dictionary to store the records, using the due date as the key
-        records_by_due_date = defaultdict(list)
+        records_by_due_date = []
 
         # Iterate through the records and group them by due date
         for record in homework_collection.find():
