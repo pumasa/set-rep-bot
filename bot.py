@@ -45,10 +45,10 @@ async def hw_help(self):
 async def hw_add(self, set_id: str, course: str, assignment: str, due: str, time: str):
     # Errpr handling
     if len(set_id) != 1:
-        await self.send("Please enter a valid set letter.")
-        return 
+        self.send("Please enter a valid set letter.")
+        return
     if len(course) != 4:
-        await self.send("Please enter a valid course ID.")
+        self.send("Please enter a valid course ID.")
         return
     if len(time) == 0:
         await self.send("Please enter a time that the assignment is due.")
