@@ -98,7 +98,12 @@ async def hw_del(self, set_id: str, course: str, assignment: str, due: str, time
 ########################################################################################
 # Define a command to get homework assignments by set
 @bot.command()
-async def hw_set(self, set_id: str):
+async def hw_set(ctx, set_id: str):
+    # Find the role to mention
+    role = discord.utils.get(ctx.guild.roles, name=f"Set {set_id}")
+    if role is None:
+        return await ctx.send('Could not find the specified role.')
+
     # Find all homework assignments with the specified set ID
     assignments = list(homework_collection.find({"set_id": set_id}))
     if assignments:
@@ -116,9 +121,9 @@ async def hw_set(self, set_id: str):
             hw_string += f"\n=======================================================\nDue: **{due}**\n"
             for a in due_assignments:
                 hw_string += f"**ACIT {a['course']}:**\n> •{a['assignment']} @**{a['time']}**\n\n"
-        await self.send(f"@Set{set_id} \n Homework assignments for set {set_id}:\n{hw_string}")
+        await ctx.send(f"{role.mention} \n Homework assignments for set {set_id}:\n{hw_string}")
     else:
-        await self.send(f"No assignments found for set {set_id}.")
+        await ctx.send(f"No assignments found for set {set_id}.")
 
 
 ########################################################################################
