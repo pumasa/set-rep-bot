@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 import rps
 import threading
 from dotenv import load_dotenv
+import error
 
 # Load the environment variables from the .env file
 load_dotenv()
@@ -42,39 +43,26 @@ async def hw_help(self):
 ########################################################################################
 # Define a command to add homework assignments to the collection
 @bot.command()
-async def hw_add(self, set_id: str, course: str, assignment: str, due: str, time: str):
-    # Error handling
-    try:
-        if len(set_id) != 1:
-            await self.send("Please enter a valid set letter.")
-            return
-        if len(course) != 4:
-            await self.send("Please enter a valid course ID.")
-            return
-        if len(time) == 0:
-            await self.send("Please enter a time that the assignment is due.")
-            return
-        if len(assignment) == 0:
-            await self.send("Please enter an assignment.")
-            return
-        if len(due) == 0:
-            await self.send("Please enter a due date.")
-            return
-    except Exception:
-        await self.send("Please enter a valid set letter, course ID, assignment, due date, and time.")
-        return
-    # Convert due date to a datetime object
-    due_date = datetime.strptime(due, '%m-%d-%Y')
+async def hw_add(self, set_id: str=False, course: str=False, assignment: str=False, due: str=False, time: str=False):
+    # Check for errors
+    errors = error.hw_add_test(set_id, course, assignment, due, time)
 
-    # Insert the homework assignment into the collection
-    homework_collection.insert_one({
-        "set_id": set_id,
-        "course": course,
-        "assignment": assignment,
-        "due": due_date,
-        "time": time
-    })
-    await self.send("Homework assignment added successfully.")
+    if errors:
+        # Convert due date to a datetime object
+        due_date = datetime.strptime(due, '%m-%d-%Y')
+
+        # Insert the homework assignment into the collection
+        homework_collection.insert_one({
+            "set_id": set_id,
+            "course": course,
+            "assignment": assignment,
+            "due": due_date,
+            "time": time
+        })
+        await self.send("Homework assignment added successfully.")
+    else:
+        await self.send(errors)
+
 
 
 ########################################################################################
