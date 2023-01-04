@@ -67,7 +67,7 @@ async def hw_add(self, set_id: str=False, course: str=False, assignment: str=Fal
             "due": due_date,
             "time": time
         })
-        await self.send(f"Homework assignment added successfully. ID is {str(id['_id'])}")
+        await self.send(f"Homework assignment added successfully. ID is {id['_id']}")
     else:
         await self.send(errors)
 
