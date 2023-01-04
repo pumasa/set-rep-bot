@@ -47,7 +47,7 @@ async def hw_add(self, set_id: str=False, course: str=False, assignment: str=Fal
     # Check for errors
     errors = error.hw_add_test(set_id, course, assignment, due, time)
 
-    if errors:
+    if isinstance(errors, str):
         # Convert due date to a datetime object
         due_date = datetime.strptime(due, '%m-%d-%Y')
 
