@@ -59,7 +59,15 @@ async def hw_add(self, set_id: str=False, course: str=False, assignment: str=Fal
             "due": due_date,
             "time": time
         })
-        await self.send("Homework assignment added successfully.")
+        id = homework_collection.find({
+            "set_id": set_id,
+            "course": course,
+            "assignment": assignment,
+            "due": due_date,
+            "time": time
+        })
+        print(id, type(id))
+        await self.send(f"Homework assignment added successfully. ID is {id}")
     else:
         await self.send(errors)
 
@@ -68,20 +76,34 @@ async def hw_add(self, set_id: str=False, course: str=False, assignment: str=Fal
 ########################################################################################
 # Define a command to delete homework assignments from the collection
 @bot.command()
-async def hw_del(self, set_id: str, course: str, assignment: str, due: str, time: str):
-    # Convert due date to a datetime object
-    due_date = datetime.strptime(due, '%m-%d-%Y')
+async def hw_del(self, set_id: str=False, course: str=False, assignment: str=False, due: str=False, time: str=False):
+    # Check user input 
+    errors = error.hw_add_test(set_id, course, assignment, due, time)
+    
+    if errors == True:
+        # Check if homework exists
+        exists = homework_collection.find({
+            "set_id": set_id,
+            "course": course,
+            "assignment": assignment,
+            "due": due_date,
+            "time": time
+        })
+        if exists:
+            # Convert due date to a datetime object
+            due_date = datetime.strptime(due, '%m-%d-%Y')
 
-    # Delete the homework assignment from the collection
-    homework_collection.delete_one({
-        "set_id": set_id,
-        "course": course,
-        "assignment": assignment,
-        "due": due_date,
-        "time": time
-    })
-    await self.send("Homework assignment deleted successfully.")
-
+            # Delete the homework assignment from the collection
+            homework_collection.delete_one({
+                "set_id": set_id,
+                "course": course,
+                "assignment": assignment,
+                "due": due_date,
+                "time": time
+            })
+            await self.send("Homework assignment deleted successfully.")
+        else:
+            await self.send("Homework does not exist")
 
 ########################################################################################
 # Define a command to get homework assignments by set
@@ -108,7 +130,7 @@ async def hw_set(ctx, set_id: str):
         for due, due_assignments in assignments_by_due.items():
             hw_string += f"\n=======================================================\nDue: **{due}**\n"
             for a in due_assignments:
-                hw_string += f"**ACIT {a['course']}:**\n> •{a['assignment']} @**{a['time']}**\n\n"
+                hw_string += f"**ACIT {a['course']}:**\n> •{a['_id']}\n{a['assignment']} @**{a['time']}**\n\n"
         await ctx.send(f"{role.mention} \n Homework assignments for set {set_id}:\n{hw_string}")
     else:
         await ctx.send(f"No assignments found for set {set_id}.")
