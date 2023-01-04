@@ -116,7 +116,7 @@ async def hw_set(self, set_id: str):
             hw_string += f"\n=======================================================\nDue: **{due}**\n"
             for a in due_assignments:
                 hw_string += f"**ACIT {a['course']}:**\n> •{a['assignment']} @**{a['time']}**\n\n"
-        await self.send(f"@Set {set_id} Homework assignments for set {set_id}:\n{hw_string}")
+        await self.send(f"@Set {set_id}\n Homework assignments for set {set_id}:\n{hw_string}")
     else:
         await self.send(f"No assignments found for set {set_id}.")
 
