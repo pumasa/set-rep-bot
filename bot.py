@@ -7,7 +7,6 @@ import rps
 import threading
 from dotenv import load_dotenv
 import error
-from bson.objectid import ObjectId
 
 # Load the environment variables from the .env file
 load_dotenv()
@@ -67,7 +66,7 @@ async def hw_add(self, set_id: str=False, course: str=False, assignment: str=Fal
             "due": due_date,
             "time": time
         })
-        await self.send(f"Homework assignment added successfully. ID is {ObjectId.toString(id)}")
+        await self.send(f"Homework assignment added successfully. ID is {str(id['_id'])}")
     else:
         await self.send(errors)
 
