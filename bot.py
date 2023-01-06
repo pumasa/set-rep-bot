@@ -129,13 +129,43 @@ async def hw_set(ctx, set_id: str):
         # Format the assignments as a string and send them to the user
         hw_string = ""
         for due, due_assignments in assignments_by_due.items():
-            hw_string += f"\n=======================================================\nDue: **{due}**\n"
+            hw_string += f"\nDue: **{due}**\n=======================================================\n"
+            for a in due_assignments:
+                hw_string += f"**ACIT {a['course']}:**\n> • {a['assignment']} @**{a['time']}**\n\n"
+        await ctx.send(f"{role.mention} \n Homework assignments for set {set_id}:\n{hw_string}")
+    else:
+        await ctx.send(f"No assignments found for set {set_id}.")
+
+########################################################################################
+# Define a command to get homework assignments by set
+@bot.command()
+async def hw_set_rep(ctx, set_id: str):
+    # Find the role to mention
+    role = discord.utils.get(ctx.guild.roles, name=f"Bot {set_id}")
+    if role is None:
+        return await ctx.send('Could not find the specified role.')
+
+    # Find all homework assignments with the specified set ID
+    assignments = list(homework_collection.find({"set_id": set_id}))
+    if assignments:
+        # Group the assignments by their due date
+        assignments_by_due = {}
+        for a in assignments:
+            due = a['due'].strftime('%B %d, %Y (%A)')
+        
+            if due not in assignments_by_due:
+                assignments_by_due[due] = []
+            assignments_by_due[due].append(a)
+
+        # Format the assignments as a string and send them to the user
+        hw_string = ""
+        for due, due_assignments in assignments_by_due.items():
+            hw_string += f"\nDue: **{due}**\n=======================================================\n"
             for a in due_assignments:
                 hw_string += f"ID: {a['_id']}\n**ACIT {a['course']}:**\n> • {a['assignment']} @**{a['time']}**\n\n"
         await ctx.send(f"{role.mention} \n Homework assignments for set {set_id}:\n{hw_string}")
     else:
         await ctx.send(f"No assignments found for set {set_id}.")
-
 
 ########################################################################################
 # Define a command to get homework assignments by course
