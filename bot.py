@@ -130,7 +130,7 @@ async def hw_set(ctx, set_id: str):
         for due, due_assignments in assignments_by_due.items():
             hw_string += f"\n=======================================================\nDue: **{due}**\n"
             for a in due_assignments:
-                hw_string += f"**ACIT {a['course']}:**\n> •{a['_id']}\n{a['assignment']} @**{a['time']}**\n\n"
+                hw_string += f"ID: {a['_id']}\n**ACIT {a['course']}:**\n> •{a['assignment']} @**{a['time']}**\n\n"
         await ctx.send(f"{role.mention} \n Homework assignments for set {set_id}:\n{hw_string}")
     else:
         await ctx.send(f"No assignments found for set {set_id}.")
