@@ -110,7 +110,7 @@ async def hw_del(self, set_id: str=False, course: str=False, assignment: str=Fal
 @bot.command()
 async def hw_set(ctx, set_id: str):
     # Find the role to mention
-    role = discord.utils.get(ctx.guild.roles, name=f"Set {set_id}")
+    role = discord.utils.get(ctx.guild.roles, name=f"Bot {set_id}")
     if role is None:
         return await ctx.send('Could not find the specified role.')
 
@@ -121,6 +121,7 @@ async def hw_set(ctx, set_id: str):
         assignments_by_due = {}
         for a in assignments:
             due = a['due'].strftime('%B %d, %Y')
+            due_day = a['due'].strftime('%A')
             if due not in assignments_by_due:
                 assignments_by_due[due] = []
             assignments_by_due[due].append(a)
@@ -128,9 +129,9 @@ async def hw_set(ctx, set_id: str):
         # Format the assignments as a string and send them to the user
         hw_string = ""
         for due, due_assignments in assignments_by_due.items():
-            hw_string += f"\n=======================================================\nDue: **{due}**\n"
+            hw_string += f"\n=======================================================\nDue: **{due}({due_day})**\n"
             for a in due_assignments:
-                hw_string += f"ID: {a['_id']}\n**ACIT {a['course']}:**\n> •{a['assignment']} @**{a['time']}**\n\n"
+                hw_string += f"ID: {a['_id']}\n**ACIT {a['course']}:**\n> • {a['assignment']} @**{a['time']}**\n\n"
         await ctx.send(f"{role.mention} \n Homework assignments for set {set_id}:\n{hw_string}")
     else:
         await ctx.send(f"No assignments found for set {set_id}.")
