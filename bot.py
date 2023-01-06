@@ -120,8 +120,8 @@ async def hw_set(ctx, set_id: str):
         # Group the assignments by their due date
         assignments_by_due = {}
         for a in assignments:
-            due = a['due'].strftime('%B %d, %Y')
-            due_day = a['due'].strftime('%A')
+            due = a['due'].strftime('%B %d, %Y (%A)')
+        
             if due not in assignments_by_due:
                 assignments_by_due[due] = []
             assignments_by_due[due].append(a)
@@ -129,7 +129,7 @@ async def hw_set(ctx, set_id: str):
         # Format the assignments as a string and send them to the user
         hw_string = ""
         for due, due_assignments in assignments_by_due.items():
-            hw_string += f"\n=======================================================\nDue: **{due}({due_day})**\n"
+            hw_string += f"\n=======================================================\nDue: **{due}**\n"
             for a in due_assignments:
                 hw_string += f"ID: {a['_id']}\n**ACIT {a['course']}:**\n> • {a['assignment']} @**{a['time']}**\n\n"
         await ctx.send(f"{role.mention} \n Homework assignments for set {set_id}:\n{hw_string}")
