@@ -87,7 +87,8 @@ async def hw_del(self, ID):
         homework_collection.delete_one({
             "_id": ID
         })
-        await self.send("Homework assignment deleted successfully.")
+        # await self.send("Homework assignment deleted successfully.")
+        await self.send(f"{exists}")
     else:
         await self.send("Homework does not exist")
 
