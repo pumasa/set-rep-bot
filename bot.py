@@ -16,7 +16,8 @@ MONGO_USER = os.getenv('MONGO_USER')
 MONGO_PASS = os.getenv('MONGO_PASS')
 
 # Connect to the MongoDB database
-client = pymongo.MongoClient("mongodb+srv://"+MONGO_USER+":"+MONGO_PASS+"@agile.d4nez.mongodb.net/?retryWrites=true&w=majority")
+client = pymongo.MongoClient("mongodb+srv://"+MONGO_USER+":" +
+                             MONGO_PASS+"@agile.d4nez.mongodb.net/?retryWrites=true&w=majority")
 db = client.test
 
 # Set up the bot with the command prefix '$'
@@ -44,7 +45,7 @@ async def hw_help(self):
 ########################################################################################
 # Define a command to add homework assignments to the collection
 @bot.command()
-async def hw_add(self, set_id: str=False, course: str=False, assignment: str=False, due: str=False, time: str=False):
+async def hw_add(self, set_id: str = False, course: str = False, assignment: str = False, due: str = False, time: str = False):
     # Check for errors
     errors = error.hw_add_test(set_id, course, assignment, due, time)
 
@@ -72,41 +73,28 @@ async def hw_add(self, set_id: str=False, course: str=False, assignment: str=Fal
         await self.send(errors)
 
 
-
 ########################################################################################
 # Define a command to delete homework assignments from the collection
 @bot.command()
-async def hw_del(self, set_id: str=False, course: str=False, assignment: str=False, due: str=False, time: str=False):
-    # Check user input 
-    errors = error.hw_add_test(set_id, course, assignment, due, time)
-    
-    if errors == True:
-        # Check if homework exists
-        exists = homework_collection.find({
-            "set_id": set_id,
-            "course": course,
-            "assignment": assignment,
-            "due": due_date,
-            "time": time
-        })
-        if exists:
-            # Convert due date to a datetime object
-            due_date = datetime.strptime(due, '%m-%d-%Y')
+async def hw_del(self, ID):
+    # Check user input
+    exists = homework_collection.find({
+        "_id": ID
+    })
 
-            # Delete the homework assignment from the collection
-            homework_collection.delete_one({
-                "set_id": set_id,
-                "course": course,
-                "assignment": assignment,
-                "due": due_date,
-                "time": time
-            })
-            await self.send("Homework assignment deleted successfully.")
-        else:
-            await self.send("Homework does not exist")
+    if exists:
+        # Delete the homework assignment from the collection
+        homework_collection.delete_one({
+            "_id": ID
+        })
+        await self.send("Homework assignment deleted successfully.")
+    else:
+        await self.send("Homework does not exist")
 
 ########################################################################################
 # Define a command to get homework assignments by set
+
+
 @bot.command()
 async def hw_set(ctx, set_id: str):
     # Find the role to mention
@@ -121,7 +109,7 @@ async def hw_set(ctx, set_id: str):
         assignments_by_due = {}
         for a in assignments:
             due = a['due'].strftime('%B %d, %Y (%A)')
-        
+
             if due not in assignments_by_due:
                 assignments_by_due[due] = []
             assignments_by_due[due].append(a)
@@ -131,13 +119,15 @@ async def hw_set(ctx, set_id: str):
         for due, due_assignments in assignments_by_due.items():
             hw_string += f"\nDue: **{due}**\n=======================================================\n"
             for a in due_assignments:
-                hw_string += f"**ACIT {a['course']}:**\n> • {a['assignment']} @**{a['time']}**\n\n"
+                hw_string += f"{a['_id']}\n**ACIT {a['course']}:**\n> • {a['assignment']} @**{a['time']}**\n\n"
         await ctx.send(f"{role.mention} \n Homework assignments for set {set_id}:\n{hw_string}")
     else:
         await ctx.send(f"No assignments found for set {set_id}.")
 
 ########################################################################################
 # Define a command to get homework assignments by set
+
+
 @bot.command()
 async def hw_set_rep(ctx, set_id: str):
     # Find the role to mention
@@ -152,7 +142,7 @@ async def hw_set_rep(ctx, set_id: str):
         assignments_by_due = {}
         for a in assignments:
             due = a['due'].strftime('%B %d, %Y (%A)')
-        
+
             if due not in assignments_by_due:
                 assignments_by_due[due] = []
             assignments_by_due[due].append(a)
@@ -169,13 +159,16 @@ async def hw_set_rep(ctx, set_id: str):
 
 ########################################################################################
 # Define a command to get homework assignments by course
+
+
 @bot.command()
 async def hw_course(self, course: str):
     # Find all homework assignments with the specified course
     assignments = list(homework_collection.find({"course": course}))
     if assignments:
         # Format the assignments as a string and send them to the user
-        hw_string = "\n".join([f"{a['assignment']} (Due: {a['due']})" for a in assignments])
+        hw_string = "\n".join(
+            [f"{a['assignment']} (Due: {a['due']})" for a in assignments])
         await self.send(f"Homework assignments for course {course}:\n{hw_string}")
     else:
         await self.send(f"No assignments found for course {course}.")
@@ -186,7 +179,8 @@ async def hw_course(self, course: str):
 @bot.command()
 async def duetoday(self, set_id: str):
 
-    result = list(homework_collection.find({"due": {"$eq": datetime.strptime(str(current_date), '%Y-%m-%d')}}))
+    result = list(homework_collection.find(
+        {"due": {"$eq": datetime.strptime(str(current_date), '%Y-%m-%d')}}))
 
     homework = ""
 
@@ -204,9 +198,11 @@ async def duetoday(self, set_id: str):
 @bot.command()
 async def duetomorrow(self):
     tomorrow = current_date + timedelta(days=1)
-    result = homework_collection.find({"due": {"$gte": datetime.strptime(str(tomorrow), '%Y-%m-%d')}})
+    result = homework_collection.find(
+        {"due": {"$gte": datetime.strptime(str(tomorrow), '%Y-%m-%d')}})
     if result:
-        homework = "\n".join([f"Set {assignment['set_id']} - Course: {assignment['course']} - {assignment['assignment']}" for assignment in result])
+        homework = "\n".join(
+            [f"Set {assignment['set_id']} - Course: {assignment['course']} - {assignment['assignment']}" for assignment in result])
         await self.send(f"Homework due tomorrow:\n{homework}")
     else:
         await self.send("No homework due tomorrow.")
@@ -214,7 +210,8 @@ async def duetomorrow(self):
 
 ########################################################################################
 def delete_expired_homework():
-    result = db.homework.delete_many({"due": {"$lt": datetime.strptime(str(current_date), '%Y-%m-%d')}})
+    result = db.homework.delete_many(
+        {"due": {"$lt": datetime.strptime(str(current_date), '%Y-%m-%d')}})
     print(f"{result.deleted_count} documents deleted.")
 
 
