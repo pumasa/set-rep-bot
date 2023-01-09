@@ -29,7 +29,7 @@ homework_collection = db.homework
 
 # Get the current date
 eight_hrs = datetime.timedelta(hours=8)
-current_date = datetime.today().date() - eight_hrs
+current_date = datetime.today().date() 
 
 ########################################################################################
 # Define a command to display usage information
@@ -195,7 +195,7 @@ async def duetoday(self, set_id: str):
     eight_hrs = datetime.timedelta(hours=8)
 
     result = list(homework_collection.find(
-        {"due": {"$eq": datetime.strptime(str(current_date), '%Y-%m-%d')}}))
+        {"due": {"$eq": datetime.strptime(str(current_date), '%Y-%m-%d') - eight_hrs}}))
 
     homework = ""
 
