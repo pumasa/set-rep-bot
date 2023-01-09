@@ -28,8 +28,8 @@ bot = commands.Bot(command_prefix='$', intents=intents)
 homework_collection = db.homework
 
 # Get the current date
-
-current_date = datetime.today().date()
+eight_hrs = datetime.timedelta(hours=8)
+current_date = datetime.today().date() - eight_hrs
 
 ########################################################################################
 # Define a command to display usage information
@@ -52,20 +52,20 @@ async def hw_add(self, set_id: str = False, course: str = False, assignment: str
     if errors is True:
         # Convert due date to a datetime object
         due_date = datetime.strptime(due, '%m-%d-%Y')
-        eight_hrs = datetime.timedelta(hours=8)
+        
         # Insert the homework assignment into the collection
         homework_collection.insert_one({
             "set_id": set_id,
             "course": course,
             "assignment": assignment,
-            "due": due_date-eight_hrs,
+            "due": due_date,
             "time": time
         })
         id = homework_collection.find({
             "set_id": set_id,
             "course": course,
             "assignment": assignment,
-            "due": due_date-eight_hrs,
+            "due": due_date,
             "time": time
         })
         await self.send(f"Homework assignment added successfully. ID is {id[0]['_id']}")
@@ -192,6 +192,7 @@ async def hw_course(self, course: str):
 # Define a command to get homework assignments due today
 @bot.command()
 async def duetoday(self, set_id: str):
+    eight_hrs = datetime.timedelta(hours=8)
 
     result = list(homework_collection.find(
         {"due": {"$eq": datetime.strptime(str(current_date), '%Y-%m-%d')}}))
