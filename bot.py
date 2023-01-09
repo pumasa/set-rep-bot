@@ -28,15 +28,19 @@ bot = commands.Bot(command_prefix='$', intents=intents)
 homework_collection = db.homework
 
 # Get the current date
+current_time = datetime.datetime.now()
+seattle_time = datetime.timezone(datetime.timedelta(hours=-8))
 current_date = datetime.today().date()
 
+seattle_timezone = current_time.astimezone(seattle_time)
+print(seattle_timezone)
 
 ########################################################################################
 # Define a command to display usage information
 @bot.command()
 async def hw_help(self):
     await self.send("""Usage:
-                    $hw_add <SET> <COURSE_ID> <Assignment Info> <DUE_DATE (m/d/y)> <TIME>
+                    $hw_add <SET> <COURSE_ID> <Assignment Info> <DUE_DATE (m-d-y)> <TIME>
                     $hw_del <SET> <COURSE_ID> <Assignment> <DUE_DATE> <TIME>
                     $hw_set <SET>
                     $hw_course <COURSE_ID>""")
@@ -51,7 +55,7 @@ async def hw_add(self, set_id: str = False, course: str = False, assignment: str
 
     if errors is True:
         # Convert due date to a datetime object
-        due_date = datetime.strptime(due, '%m-%d-%Y')
+        due_date = seattle_timezone.strptime(due, '%m-%d-%Y')
 
         # Insert the homework assignment into the collection
         homework_collection.insert_one({
