@@ -31,8 +31,6 @@ homework_collection = db.homework
 
 current_date = datetime.today().date()
 
-print(eight_hrs)
-
 ########################################################################################
 # Define a command to display usage information
 @bot.command()
