@@ -49,7 +49,7 @@ async def hw_add(self, set_id: str = False, course: str = False, assignment: str
     # Check for errors
     errors = error.hw_add_test(set_id, course, assignment, due, time)
 
-    if errors == True:
+    if errors is True:
         # Convert due date to a datetime object
         due_date = datetime.strptime(due, '%m-%d-%Y')
 
@@ -76,11 +76,13 @@ async def hw_add(self, set_id: str = False, course: str = False, assignment: str
 ########################################################################################
 # Define a command to delete homework assignments from the collection
 @bot.command()
-async def hw_del(self, set_id: str=False, course: str=False, assignment: str=False, due: str=False, time: str=False):
-    # Check user input 
+async def hw_del(self, set_id: str = False, course: str = False, assignment: str = False, due: str = False, time: str = False):
+    # Check user input
     errors = error.hw_add_test(set_id, course, assignment, due, time)
-    
-    if errors == True:
+    # Convert due date to a datetime object
+    due_date = datetime.strptime(due, '%m-%d-%Y')
+
+    if errors is True:
         # Check if homework exists
         exists = homework_collection.find({
             "set_id": set_id,
@@ -90,8 +92,6 @@ async def hw_del(self, set_id: str=False, course: str=False, assignment: str=Fal
             "time": time
         })
         if exists:
-            # Convert due date to a datetime object
-            due_date = datetime.strptime(due, '%m-%d-%Y')
 
             # Delete the homework assignment from the collection
             homework_collection.delete_one({
@@ -133,7 +133,7 @@ async def hw_set(ctx, set_id: str):
         for due, due_assignments in assignments_by_due.items():
             hw_string += f"\nDue: **{due}**\n=======================================================\n"
             for a in due_assignments:
-                hw_string += f"{a['_id']}\n**ACIT {a['course']}:**\n> • {a['assignment']} @**{a['time']}**\n\n"
+                hw_string += f"**ACIT {a['course']}:**\n> • {a['assignment']} @**{a['time']}**\n\n"
         await ctx.send(f"{role.mention} \n Homework assignments for set {set_id}:\n{hw_string}")
     else:
         await ctx.send(f"No assignments found for set {set_id}.")
