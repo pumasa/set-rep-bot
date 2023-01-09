@@ -28,7 +28,7 @@ bot = commands.Bot(command_prefix='$', intents=intents)
 homework_collection = db.homework
 
 # Get the current date
-eight_hrs = datetime.timedelta(hours=8)
+
 current_date = datetime.today().date()
 
 print(eight_hrs)
@@ -54,20 +54,20 @@ async def hw_add(self, set_id: str = False, course: str = False, assignment: str
     if errors is True:
         # Convert due date to a datetime object
         due_date = datetime.strptime(due, '%m-%d-%Y')
-
+        eight_hrs = datetime.timedelta(hours=8)
         # Insert the homework assignment into the collection
         homework_collection.insert_one({
             "set_id": set_id,
             "course": course,
             "assignment": assignment,
-            "due": due_date,
+            "due": due_date-eight_hrs,
             "time": time
         })
         id = homework_collection.find({
             "set_id": set_id,
             "course": course,
             "assignment": assignment,
-            "due": due_date,
+            "due": due_date-eight_hrs,
             "time": time
         })
         await self.send(f"Homework assignment added successfully. ID is {id[0]['_id']}")
@@ -90,7 +90,7 @@ async def hw_del(self, set_id: str = False, course: str = False, assignment: str
             "set_id": set_id,
             "course": course,
             "assignment": assignment,
-            "due": due_date - eight_hrs,
+            "due": due_date,
             "time": time
         })
         if exists:
@@ -100,7 +100,7 @@ async def hw_del(self, set_id: str = False, course: str = False, assignment: str
                 "set_id": set_id,
                 "course": course,
                 "assignment": assignment,
-                "due": due_date - eight_hrs,
+                "due": due_date,
                 "time": time
             })
             await self.send("Homework assignment deleted successfully.")
