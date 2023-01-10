@@ -203,7 +203,7 @@ async def duetoday(self, set_id: str):
         for assignment in result:
             if assignment['set_id'] == set_id:
                 homework += f"**ACIT {assignment['course']}:**\n{assignment['assignment']}@**{assignment['time']}**\n"
-                await self.send(f"Homework due today:\n{homework}")
+                await self.send(f"Homework due today:\n{homework}\n{current_date}")
             else:
                 await self.send("No homework due today.")
 
