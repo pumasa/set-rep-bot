@@ -28,8 +28,8 @@ bot = commands.Bot(command_prefix='$', intents=intents)
 homework_collection = db.homework
 
 # Get the current date
-
-current_date = datetime.today().date()
+setTimeToCurrent = timedelta(hours = 8)
+current_date = datetime.today().date() - setTimeToCurrent
 
 ########################################################################################
 # Define a command to display usage information
@@ -203,7 +203,7 @@ async def duetoday(self, set_id: str):
         for assignment in result:
             if assignment['set_id'] == set_id:
                 homework += f"**ACIT {assignment['course']}:**\n{assignment['assignment']}@**{assignment['time']}**\n"
-                await self.send(f"Homework due today:\n{homework}\n NANI???? ")
+                await self.send(f"Homework due today:\n{homework} ")
             else:
                 await self.send("No homework due today.")
 
