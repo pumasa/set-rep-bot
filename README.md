@@ -42,7 +42,7 @@ The bot has a few commands that can be used to interact with it. The prefix for 
 
 - [x] Update duetoday function to display assignments that due for a specific set
 
-- [ ] Error handling for invalid commands
+- [x] Error handling for invalid commands
 
 - [ ] Add a function to display assignments that are due in the next 7 days
 
